@@ -194,6 +194,7 @@ public class Grille {
             }
         }return nb;
     }
+    //ceci est un test
     
     public Pawn gwinner(){ // renvoie le joueur qui a le plus de point aucun des deux si execo
         if(nbPawn(Pawn.BLANC)> nbPawn(Pawn.NOIR))return Pawn.BLANC;
