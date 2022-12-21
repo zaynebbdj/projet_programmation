@@ -4,14 +4,14 @@ public class Main {
     public static void main(String[] args){
 
         
-        Grille jeu = new Grille();
-        jeu.affiche();
-        jeu.update(3,2,1);
+        Grille jeu = new Grille(8);
+        jeu.show();
+        jeu.update(3,2,Pawn.NOIR);
         System.out.println();
-        jeu.affiche();
-        jeu.update(5,4,-1);
+        jeu.show();
+        jeu.update(2,2,Pawn.BLANC);
         System.out.println();
-        jeu.affiche();
+        jeu.show();
         
 
     }

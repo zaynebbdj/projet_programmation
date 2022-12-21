@@ -1,149 +1,118 @@
 public class Grille {
-    private  int [] [] plateau;
-    private String nom;
-    private final static int NOIR = 1;
-    private final static int BLANC = -1;
-    private final static int VIDE = 0;
-
-    public final static int NORD=0;
-    public final static int NORDOUEST = 1;
-    public final static int OUEST = 2;
-    public final static int SUDOUEST = 3;
-    public final static int SUD = 4;
-    public final static int SUDEST = 5;
-    public final static int EST = 6;
-    public final static int NORDEST = 7;
+    private  Pawn [] [] board;
+    private String name;
+    private Pawn color;
     
 
+    
+    public Pawn getcolor(int x,int j){
+        return this.board[x][j];
+    }
+    public void setcolor(int i,int j, Pawn player){
+        this.board[i][j]= player;
+    }
 
-    public int getcouleur(int x,int j){
-        return this.plateau[x][j];
-    }
-    public void setcouleur(int i,int j, int joueur){
-        this.plateau[i][j]= joueur;
-    }
-
-    public Grille(){
-        this.plateau= new int[8] [8];
-        plateau[3][4] = plateau[4][3] = this.NOIR;
-		plateau[3][3] = plateau[4][4] = this.BLANC;
-    }
-    public void initialiser(){
-        for(int i=0;i<8 ; i++){
-            for(int j=0; j<8 ; j++){
-                this.plateau[i][j]= this.VIDE;
+    public Grille(int taille){
+        this.board= new Pawn[taille] [taille];
+        for(int i=0; i<taille;i++){
+            for(int j =0 ; j<taille; j++){
+                this.board[i][j]=Pawn.VIDE;
             }
         }
-        plateau[3][4] = plateau[4][3] = this.NOIR;
-		plateau[3][3] = plateau[4][4] = this.BLANC;
-
+        board[3][4] = board[4][3] = Pawn.NOIR;
+		board[3][3] = board[4][4] = Pawn.BLANC;
     }
-    //verifie si la case est un ennemi
-    public  boolean est_ennemi(int x , int y, int joueur){
-        if(this.plateau[x][y]==(-joueur)) return true;
+    
+    //verifie si une case a cote de la case [x][y] est un ennemi
+    public  boolean isEnnemi(int x , int y, Direction d){
+        Pawn player = this.board[x][y];
+        int i,j;
+        switch (d){
+            case NORDOUEST :
+				i = x-1;
+				j = y-1;
+				break;
+			case NORD : 
+                i = x-1;
+                j = y;
+				break;
+			case NORDEST : 
+                i = x-1;
+                j = y+1;
+				break;
+			case OUEST : 
+                i = x;
+                j = y-1;
+				break;
+			case EST : 
+                i = x;
+                j = y+1;
+				break;
+			case SUDOUEST : 
+            i = x+1;
+            j = y-1;
+				break;
+			case SUD : 
+            i = x+1;
+            j = y;
+				break;
+			case SUDEST : 
+            i = x+1;
+            j = y+1;
+				break;
+			default:
+				i = 0;
+				j = 0;
+        }
+        
+        if(  (this.board[i][j]==Pawn.BLANC && player==Pawn.NOIR )|| (this.board[i][j]==Pawn.NOIR && player==Pawn.BLANC)) return true;
         return false;
     }
-    public boolean estvide(int i, int j){
-        return this.plateau[i][j]== this.VIDE;
+    public boolean isEmpty(int i, int j){  // verifie si la case est vide
+        return this.board[i][j]== Pawn.VIDE;
     }
 
-    public void affiche(){
+    public void show(){
         for (int i=0 ; i<8;i++){
             for(int j=0; j<8; j++){
-                System.out.print(this.plateau[i][j]+"  ");
+                System.out.print(this.board[i][j].ordinal2());
             }
             System.out.println();
         }
     }
     
-    public boolean coup_possible(int x , int y , int joueur){
+    public boolean coupPossible(int x , int y , Pawn player){ // verifie si un coup est possible pour le  joueur player
         int nbcoup=0;
-        if(estvide(x,y)){
-            System.out.println("place vide");
-            if(est_ennemi(x-1,y,joueur)){ 
-                System.out.println("coup_possible _ estennemi nord") ; // on verifie si en position nord il y a un ennemi
-                if(nord(x-2,y,joueur)) nbcoup++;
-            }
-            if(est_ennemi(x-1,y-1,joueur)){  // position nordouest
-                if(nordouest(x-2,y-2,joueur)) nbcoup++;
-            }
-            if(est_ennemi(x,y-1,joueur)){    // position ouest
-                if(ouest(x,y-2,joueur)) nbcoup++;
-            }
-            if(est_ennemi(x+1,y-1,joueur)){   // position sudouest
-                if(sudouest(x+2,y-2,joueur)) nbcoup++;
-            }
-            if(est_ennemi(x+1,y,joueur)){    // position sud
-                if(sud(x+2,y,joueur)) nbcoup++;
-            }
-            if(est_ennemi(x+1,y+1,joueur)){
-                if(sudest(x+2,y+2,joueur)) nbcoup++;
-            }
-            if(est_ennemi(x,y+1,joueur)){   //position est
-                if(est(x,y+2,joueur)) nbcoup++;
-            }
-            if(est_ennemi(x-1,y+1,joueur)){   //position nordest
-                if(nordest(x-2,y+2,joueur)) nbcoup++;
+        if(isEmpty(x,y)){
+            for(Direction d : Direction.values()){
+                if(this.coupPossible_aux2(x,y,player,d)) nbcoup++;
             }
             
+            
 
-        }System.out.println(nbcoup);
+        }
         return nbcoup!=0;
 
     }
 
-    public void update(int x, int y, int joueur){
-        System.out.println("debut");
-        if(coup_possible(x,y,joueur)){
-            System.out.println("entré");
-            this.plateau[x][y]=joueur;
-            if(est_ennemi(x-1,y,joueur)){  
-                System.out.println("nord") ;
-                if(nord(x-2,y,joueur)){
-                    changer_ligne(x,y,joueur , NORD);
-                }
-                
+    public void update(int x, int y ,Pawn player){// actualise le plateau avec le nouveau coup
+        if(this.coupPossible(x,y,player)){
+            this.board[x][y]=player;
+            for(Direction d : Direction.values()){
+                if(this.coupPossible_aux2(x,y,player,d)) changeLigne(x,y,player,d);
             }
-            if(est_ennemi(x-1,y-1,joueur)){  
-                System.out.println("norouest") ;
-                if(nordouest(x-2,y-2,joueur)) changer_ligne(x,y,joueur ,NORDOUEST);
-            }
-            if(est_ennemi(x,y-1,joueur)){ 
-                System.out.println("ouest") ;   
-                if(ouest(x,y-2,joueur)) changer_ligne(x,y,joueur , OUEST);
-            }
-            if(est_ennemi(x+1,y-1,joueur)){   
-                System.out.println("nsudouest") ;
-                if(sudouest(x+2,y-2,joueur)) changer_ligne(x,y,joueur ,SUDOUEST);
-            }
-            if(est_ennemi(x+1,y,joueur)){   
-                System.out.println("sud") ;
-                if(sud(x+2,y,joueur)) changer_ligne(x,y,joueur , SUD);
-            }
-            if(est_ennemi(x+1,y+1,joueur)){
-                System.out.println("sudest") ;
-                if(sudest(x+2,y+2,joueur)) changer_ligne(x,y,joueur , SUDEST);
-            }
-            if(est_ennemi(x,y+1,joueur)){   
-                System.out.println("est") ;
-                if(est(x,y+2,joueur))  changer_ligne(x,y,joueur , EST);
-            }
-            if(est_ennemi(x-1,y+1,joueur)){ 
-                System.out.println("nordest") ;  
-                if(nordest(x-2,y+2,joueur)) changer_ligne(x,y,joueur , NORDEST);
-            }
-            
+
         }
-        System.out.println("hors boucle coup possible");
-    
+
     }
+    
 
-
-    public void changer_ligne(int x, int y,int joueur, int direction){
+    public void changeLigne(int x, int y,Pawn player, Direction direction){ //actualise la grille suite a un coup possible
         
         int incrX;
         int incrY;
-        int l,c,pion;
+        int l,c;
+        Pawn p;
 
         switch(direction){
 			case NORDOUEST :
@@ -186,15 +155,14 @@ public class Grille {
             c = y+incrY;
 
             try{
-                System.out.println("ligne"+ l +"  colonne"+c);
-                pion = plateau[l][c];
-                while((pion!=joueur) && (pion!=VIDE)){
-                    this.plateau[l][c]= joueur;
+                
+                p = board[l][c];
+                while((p!=player) && (p!=Pawn.VIDE)){
+                    this.board[l][c]= player;
                     l += incrX;
                     c += incrY;
-                    System.out.println("ligne"+ l +"  colonne"+c);
-                    System.out.println("couleur du pion : " +pion);
-                    pion = plateau[l][c];
+                    
+                    p = board[l][c];
                 }
                 
             }catch(ArrayIndexOutOfBoundsException e){ 
@@ -203,97 +171,136 @@ public class Grille {
             }    
 
     }
+    public boolean isFull(){  //verifie si la grille est pleine renvoie true si oui
+        for(int i=0; i<this.board.length ; i++){
+            for(int j =0 ; j<this.board.length ; j++){
+                if(this.board[i][j]==Pawn.VIDE) return false;
+            }
+        }
+        return true;
+    }
 
-    public boolean partie_fini(int joueur){
-        return nbcoup_possible(joueur)==0;
+    public boolean partie_fini(Pawn player){ // verifis si une partie est finie retourne vrai si il n'y a aucun coup possible 
+                                            // ou si la grille est pleine
+        return (nbcoupPossible(player)==0 && this.isFull());
     }
 
 
-    public int nbpion(int joueur){
+    public int nbPawn(Pawn player){ // compte le nombre de point du joueur player 
         int nb=0;
-        for(int i=0; i<this.plateau.length;i++){
-            for(int j=0;j<this.plateau.length;j++){
-                if(this.plateau[i][j]==joueur) nb++;
+        for(int i=0; i<this.board.length;i++){
+            for(int j=0;j<this.board.length;j++){
+                if(this.board[i][j]==player) nb++;
             }
         }return nb;
     }
     
-    public int gagnant(){
-        if(nbpion(BLANC)> nbpion(NOIR))return BLANC;
-        if(nbpion(BLANC)< nbpion(NOIR)) return NOIR;
-        return VIDE;
+    public Pawn gwinner(){ // renvoie le joueur qui a le plus de point aucun des deux si execo
+        if(nbPawn(Pawn.BLANC)> nbPawn(Pawn.NOIR))return Pawn.BLANC;
+        if(nbPawn(Pawn.BLANC)< nbPawn(Pawn.NOIR)) return Pawn.NOIR;
+        return Pawn.VIDE;
         
     }
-    public int nbcoup_possible(int joueur){
+    public int nbcoupPossible(Pawn player){ // retourne le nombre de coup possible du joueur player
         int nb=0;
-        for(int i= 0 ; i <this.plateau.length ; i++){
-            for(int j =0 ; j<this.plateau.length;j++){
-                if(coup_possible(i,j,joueur)) nb++;
+        for(int i= 0 ; i <this.board.length ; i++){
+            for(int j =0 ; j<this.board.length;j++){
+                if(coupPossible(i,j,player)) nb++;
             } 
         }
         return nb;
     }
     
 
+    public boolean coupPossible_aux(int x, int y , Pawn player,Direction d){ // verifie si un coup est possible pour le joeuur player selon un direction
+        if(this.board[x][y]==Pawn.VIDE) return false;
+        if(this.board[x][y]==player) return true;
+        int incrX,incrY;
+        switch(d){
+
+			case NORDOUEST :
+				incrX = x-1;
+				incrY = y-1;
+				break;
+			case NORD : 
+				incrX = x-1;
+				incrY = y;
+				break;
+			case NORDEST : 
+				incrX = x-1;
+				incrY = y+1;
+				break;
+			case OUEST : 
+				incrX = x;
+				incrY = y-1;
+				break;
+			case EST : 
+				incrX = x;
+				incrY = y+1;
+				break;
+			case SUDOUEST : 
+				incrX = x+1;
+				incrY = y-1;
+				break;
+			case SUD : 
+				incrX = x+1;
+				incrY = y;
+				break;
+			case SUDEST : 
+				incrX = x+1;
+				incrY = y+1;
+				break;
+			default:
+				incrX = 0;
+				incrY = 0;
+		}
+        return coupPossible_aux(incrX,incrY,player,d);
+        
+
+    }
+    public boolean coupPossible_aux2(int x,int y, Pawn player,Direction d){ // verifie si un coup est possible selon une direction
+        int incrX,incrY;
+            switch(d){
+                case NORDOUEST :
+                    incrX = x-2;
+                    incrY = y-2;
+                    break;
+                case NORD : 
+                    incrX = x-2;
+                    incrY = y;
+                    break;
+                case NORDEST : 
+                    incrX = x-2;
+                    incrY = y+2;
+                    break;
+                case OUEST : 
+                    incrX = x;
+                    incrY = y-2;
+                    break;
+                case EST : 
+                    incrX = x;
+                    incrY = y+2;
+                    break;
+                case SUDOUEST : 
+                    incrX = x+2;
+                    incrY = y-2;
+                    break;
+                case SUD : 
+                    incrX = x+2;
+                    incrY = y;
+                    break;
+                case SUDEST : 
+                    incrX = x+2;
+                    incrY = y+2;
+                    break;
+                default:
+                    incrX = 0;
+                    incrY = 0;
+            }
+            return coupPossible_aux(incrX,incrY,player,d);
+        
+    }
     
-    
-    
-
-
-    // verification qu'un coup est possible en direction de tous les cotés
-    public boolean nord(int i, int j, int n){
-        
-        if(this.plateau[i][j]==this.VIDE ||i<0) return false ;
-        if(this.plateau[i][j]==n) return true;
-        else return nord(i-1,j,n);
-    }
-    public boolean sud(int i, int j, int n){
-        
-        if(this.plateau[i][j]==this.VIDE ||i>8) return false ;
-        if(this.plateau[i][j]==n) return true;
-        else return sud(i+1,j,n);
-    }
-    public boolean est(int i, int j, int n){
-        
-        if(this.plateau[i][j]==this.VIDE ||j>8) return false ;
-        if(this.plateau[i][j]==n) return true;
-        else return est(i,j+1,n);
-    }
-    public boolean ouest(int i, int j, int n){
-        
-        if(this.plateau[i][j]==this.VIDE ||j<0) return false ;
-        if(this.plateau[i][j]==n) return true;
-        else return ouest(i,j-1,n);
-    }
-    public boolean nordest(int i, int j, int n){
-        
-        if(this.plateau[i][j]==this.VIDE || j>8 || i<0) return false ;
-        if(this.plateau[i][j]==n) return true;
-        else return nordest(i-1,j+1,n);
-    }
-    public boolean nordouest(int i, int j, int n){
-        
-        if(this.plateau[i][j]==this.VIDE || j<0 || i<0) return false ;
-        if(this.plateau[i][j]==n) return true;
-        else return nordouest(i-1,j-1,n);
-    }
-
-    public boolean sudest(int i, int j, int n){
-        
-        if(this.plateau[i][j]==this.VIDE || j>8 || i>8) return false ;
-        if(this.plateau[i][j]==n) return true;
-        else return sudest(i+1,j+1,n);
-    }
-    public boolean sudouest(int i, int j, int n){
-        
-        if(this.plateau[i][j]==this.VIDE || j<0 || i>8) return false ;
-        if(this.plateau[i][j]==n) return true;
-        else return sudouest(i+1,j-1,n);
-    }
-
-
-    
-
     
 
 

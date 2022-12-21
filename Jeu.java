@@ -9,7 +9,7 @@ public class Jeu {
         nb_partie=0;
     }
     public void nouvelle_partie(){
-        parties[this.nb_partie]= new Grille();
+        parties[this.nb_partie]= new Grille(8);
         this.nb_partie ++;
     }
     public void supprimer_partie(){
