@@ -1,3 +1,4 @@
+
 public class NotEnnemiException extends Exception{
 
     public NotEnnemiException (String s){
@@ -5,3 +6,4 @@ public class NotEnnemiException extends Exception{
     }
     
 }
+
